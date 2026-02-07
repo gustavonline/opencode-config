@@ -6,5 +6,8 @@
   "description": "Cross-platform OpenCode configuration with MCP toolbox. Clone, run setup, delete.",
   "scripts": {
     "setup": "node setup.js"
+  },
+  "dependencies": {
+    "opencode-mcp-tools": "file:../../.config/opencode/tools"
   }
 }

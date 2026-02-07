@@ -6,6 +6,12 @@ This file is intended for the OpenCode agent. When a user clones this repo and o
 
 This repo contains a shared OpenCode configuration (Antigravity models, LM Studio, MCP tools) that works on both macOS and Windows. The repo is **disposable** -- after setup, everything needed lives in `~/.config/opencode/` and the repo can be deleted.
 
+**Two ways to set up:**
+1. **Automated:** Run `node setup.js` in the repo root (handles everything)
+2. **Agent-driven:** You (the agent) follow the manual steps below
+
+Both produce the same result. The automated path is faster. Use the manual path if `setup.js` fails or if you need to customize something.
+
 **Architecture:**
 ```
 This repo (temporary)                     ~/.config/opencode/ (persistent)
@@ -28,7 +34,7 @@ This repo (temporary)                     ~/.config/opencode/ (persistent)
 
 ## Automated Setup
 
-The simplest path. Tell the user to run:
+The simplest path. Run this in the repo directory:
 
 ```
 node setup.js
@@ -37,10 +43,12 @@ node setup.js
 This script:
 1. Creates `~/.config/opencode/tools/` if needed
 2. Copies all tool files (`toolbox-proxy.js`, `slack.js`, `notion.js`, `n8n.js`, `package.json`)
-3. Creates `.env` from `.env.example` (if `.env` doesn't already exist)
+3. Creates `.env` from `.env.example` (only if `.env` doesn't already exist -- existing secrets are preserved)
 4. Runs `npm install` in the tools directory
 5. Generates `opencode.json` from the template with correct OS-specific values
 6. Places `opencode.json` at `~/.config/opencode/opencode.json`
+
+If files already exist, the script prompts before overwriting (use `--force` to skip prompts).
 
 After running, the user can delete this repo folder.
 
@@ -54,11 +62,13 @@ Determine the OS and set variables:
 
 - **macOS** (`darwin`):
   - `CONFIG_DIR` = `~/.config/opencode` (e.g. `/Users/gusta/.config/opencode`)
-  - `LM_STUDIO_URL` = `http://192.168.1.38:1234/v1` (ROG Flow over LAN)
+  - `LM_STUDIO_URL` = `http://192.168.1.38:1234/v1` (ROG Flow Z13 over LAN -- if the IP changes, ask the user for the current LAN IP of their Windows machine)
+  - The OpenCode CLI bash tool works normally on Mac, so you can run commands directly.
 
 - **Windows** (`win32`):
   - `CONFIG_DIR` = `~/.config/opencode` (e.g. `C:\Users\gusta\.config\opencode`)
   - `LM_STUDIO_URL` = `http://localhost:1234/v1` (LM Studio runs locally)
+  - **NOTE:** On Windows with OpenCode Desktop, the bash tool may not work (known issue). If so, give commands to the user to run manually in their terminal.
 
 **IMPORTANT for paths in JSON:** Use forward slashes (`/`) in the generated config. Node.js handles them on all platforms.
 
