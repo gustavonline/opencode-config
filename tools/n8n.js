@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '../.env') });
+const envPath = [path.join(__dirname, '.env'), path.join(__dirname, '..', '.env')].find(p => fs.existsSync(p));
+dotenv.config({ path: envPath || path.join(__dirname, '.env') });
 
 const N8N_URL = process.env.N8N_API_URL || 'http://localhost:5678/api/v1';
 const N8N_KEY = process.env.N8N_API_KEY;

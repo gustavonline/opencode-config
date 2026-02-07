@@ -6,10 +6,18 @@ import * as notion from './notion.js';
 import * as n8n from './n8n.js';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '../.env') });
+
+// Load .env: check same dir first (installed location), then parent dir (fallback)
+const envCandidates = [
+  path.join(__dirname, '.env'),
+  path.join(__dirname, '..', '.env'),
+];
+const envPath = envCandidates.find(p => fs.existsSync(p));
+dotenv.config({ path: envPath || envCandidates[0] });
 
 const server = new Server({
   name: "unified-toolbox",

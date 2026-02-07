@@ -100,7 +100,7 @@
     },
     "unified-toolbox": {
       "type": "local",
-      "command": ["node", "{{REPO_PATH}}/tools/toolbox-proxy.js"]
+      "command": ["node", "{{CONFIG_DIR}}/tools/toolbox-proxy.js"]
     }
   }
 }

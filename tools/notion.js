@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 import { Client } from '@notionhq/client';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '../.env') });
+const envPath = [path.join(__dirname, '.env'), path.join(__dirname, '..', '.env')].find(p => fs.existsSync(p));
+dotenv.config({ path: envPath || path.join(__dirname, '.env') });
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 

@@ -1,0 +1,13 @@
+{
+  "name": "opencode-mcp-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP toolbox for OpenCode (Slack, Notion, n8n)",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.3",
+    "@notionhq/client": "^5.8.0",
+    "dotenv": "^17.2.3",
+    "node-fetch": "^3.3.2"
+  }
+}

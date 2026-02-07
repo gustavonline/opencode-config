@@ -4,114 +4,140 @@ This file is intended for the OpenCode agent. When a user clones this repo and o
 
 ## Overview
 
-This repo contains a shared OpenCode configuration (Antigravity models, LM Studio, MCP tools) that works on both macOS and Windows. The repo itself is NOT the config directory — it is a source that generates the real config.
+This repo contains a shared OpenCode configuration (Antigravity models, LM Studio, MCP tools) that works on both macOS and Windows. The repo is **disposable** -- after setup, everything needed lives in `~/.config/opencode/` and the repo can be deleted.
+
+**Architecture:**
+```
+This repo (temporary)                     ~/.config/opencode/ (persistent)
+├── tools/*.js (source)          ──>      ├── tools/*.js (installed copy)
+├── tools/package.json           ──>      ├── tools/package.json
+├── .env.example                 ──>      ├── tools/.env (created from example)
+├── config/opencode.json.template──>      ├── tools/node_modules/ (npm install)
+└── setup.js                              ├── opencode.json (generated)
+                                          ├── package.json (OC Desktop - DO NOT TOUCH)
+                                          └── node_modules/ (OC Desktop - DO NOT TOUCH)
+```
 
 **CRITICAL RULES:**
-- NEVER copy `node_modules/`, `.env`, `bun.lock`, `package-lock.json`, or any platform-specific files into `~/.config/opencode/`
-- NEVER overwrite `~/.config/opencode/package.json` — OpenCode Desktop manages that file
-- ONLY copy the generated `opencode.json` into `~/.config/opencode/`
+- NEVER overwrite `~/.config/opencode/package.json` -- OpenCode Desktop manages that file
+- NEVER overwrite `~/.config/opencode/node_modules/` -- OpenCode Desktop manages that
 - NEVER push `.env`, `node_modules/`, `antigravity-accounts.json`, or `*.tmp` to git
+- The `.env` with API secrets lives at `~/.config/opencode/tools/.env` (NOT in the repo)
 
 ---
 
-## Step 1: Detect Environment
+## Automated Setup
+
+The simplest path. Tell the user to run:
+
+```
+node setup.js
+```
+
+This script:
+1. Creates `~/.config/opencode/tools/` if needed
+2. Copies all tool files (`toolbox-proxy.js`, `slack.js`, `notion.js`, `n8n.js`, `package.json`)
+3. Creates `.env` from `.env.example` (if `.env` doesn't already exist)
+4. Runs `npm install` in the tools directory
+5. Generates `opencode.json` from the template with correct OS-specific values
+6. Places `opencode.json` at `~/.config/opencode/opencode.json`
+
+After running, the user can delete this repo folder.
+
+---
+
+## Manual Setup (if setup.js fails or for understanding)
+
+### Step 1: Detect Environment
 
 Determine the OS and set variables:
 
 - **macOS** (`darwin`):
-  - `REPO_PATH` = absolute path to this repo (e.g. `/Users/gusta/Downloads/opencode-config`)
+  - `CONFIG_DIR` = `~/.config/opencode` (e.g. `/Users/gusta/.config/opencode`)
   - `LM_STUDIO_URL` = `http://192.168.1.38:1234/v1` (ROG Flow over LAN)
-  - Config target = `~/.config/opencode/opencode.json`
 
 - **Windows** (`win32`):
-  - `REPO_PATH` = absolute path to this repo (e.g. `C:\Users\gusta\Downloads\opencode-config`)
+  - `CONFIG_DIR` = `~/.config/opencode` (e.g. `C:\Users\gusta\.config\opencode`)
   - `LM_STUDIO_URL` = `http://localhost:1234/v1` (LM Studio runs locally)
-  - Config target = `C:\Users\<username>\.config\opencode\opencode.json`
 
-**IMPORTANT for Windows paths in JSON:** Use forward slashes (`/`) or escaped backslashes (`\\`) in the generated config. Forward slashes are recommended since Node.js handles them on all platforms.
+**IMPORTANT for paths in JSON:** Use forward slashes (`/`) in the generated config. Node.js handles them on all platforms.
 
----
+### Step 2: Copy Tools
 
-## Step 2: Install MCP Tool Dependencies
+Create `~/.config/opencode/tools/` and copy these files from the repo's `tools/` directory:
+- `toolbox-proxy.js`
+- `slack.js`
+- `notion.js`
+- `n8n.js`
+- `package.json`
 
-Run in the repo root:
+### Step 3: Install Dependencies
 
+Run in `~/.config/opencode/tools/`:
 ```
 npm install
 ```
 
-This installs `@modelcontextprotocol/sdk`, `@notionhq/client`, `dotenv`, and `node-fetch` which the MCP toolbox-proxy needs.
+### Step 4: Set Up Secrets
 
----
-
-## Step 3: Set Up Secrets
-
-Check if `.env` exists in the repo root. If not, copy `.env.example` to `.env`:
-
-```
-cp .env.example .env
-```
+Copy `.env.example` from the repo to `~/.config/opencode/tools/.env`.
 
 Ask the user to provide values for any missing keys:
-- `SLACK_BOT_TOKEN` — Slack bot token (starts with `xoxb-`)
-- `NOTION_API_KEY` — Notion integration key (starts with `ntn_`)
-- `N8N_API_URL` — n8n API URL (default: `http://localhost:5678/api/v1`)
-- `N8N_API_KEY` — n8n API key
+- `SLACK_BOT_TOKEN` -- Slack bot token (starts with `xoxb-`)
+- `NOTION_API_KEY` -- Notion integration key (starts with `ntn_`)
+- `N8N_API_URL` -- n8n API URL (default: `http://localhost:5678/api/v1`)
+- `N8N_API_KEY` -- n8n API key
 
-If the user doesn't use some of these services, those keys can be left empty. The MCP tools will just fail gracefully for unused services.
+If the user doesn't use some of these services, those keys can be left empty.
 
----
-
-## Step 4: Generate opencode.json
+### Step 5: Generate opencode.json
 
 Read `config/opencode.json.template` and replace:
-- `{{REPO_PATH}}` with the resolved absolute path to this repo (use forward slashes)
+- `{{CONFIG_DIR}}` with the resolved `~/.config/opencode` path (use forward slashes)
 - `{{LM_STUDIO_URL}}` with the correct URL from Step 1
 
 Write the result to `~/.config/opencode/opencode.json`.
 
-**WARNING:** Check if `~/.config/opencode/opencode.json` already exists. If it does, ask the user before overwriting. Show them the diff.
+**WARNING:** Check if `opencode.json` already exists. If it does, ask the user before overwriting.
 
----
+### Step 6: Authenticate Antigravity
 
-## Step 5: Authenticate Antigravity
+The user needs to authenticate with Google OAuth. In OpenCode Desktop, they can use `/connect` or the plugin may prompt automatically on first model use.
 
-The user needs to run the Antigravity OAuth login. Tell them:
+### Step 7: Verify
 
-```
-opencode auth login
-```
-
-If using OpenCode Desktop (no CLI), they can run `/connect` and select Google, or the plugin may prompt automatically on first use.
-
----
-
-## Step 6: Verify
-
-Tell the user to restart OpenCode (or the Desktop app) to pick up the new config.
+Tell the user to restart OpenCode Desktop to pick up the new config.
 
 After restart, verify:
-- Antigravity models appear in the model list (e.g. `google/antigravity-claude-opus-4-6-thinking`)
+- Antigravity models appear in the model list
 - LM Studio model appears if LM Studio is running
 - Context7 MCP is available
 - MCP toolbox tools are available (slack, notion, n8n)
 
 ---
 
+## Updating Tools Later
+
+To update the tool code after changes are pushed to the repo:
+
+1. Clone or pull the repo
+2. Run `node setup.js` again (it will ask before overwriting existing files)
+3. Or use `node setup.js --force` to overwrite without asking
+4. Delete the repo
+
+The `.env` is never overwritten if it already exists, so secrets are preserved.
+
+---
+
 ## Troubleshooting
 
-### "NUL file" or corruption on Windows
-This happens when macOS files (symlinks, .DS_Store, binary node_modules) end up in the Windows config dir. Fix:
-1. Delete everything in `~/.config/opencode/` EXCEPT `package.json` and `node_modules/`
-2. Re-run this setup
-
 ### MCP tools not working
-- Check that `npm install` was run in the repo root (not in `~/.config/opencode/`)
-- Check that `.env` has valid tokens
-- Check that the `{{REPO_PATH}}` in the generated config points to the actual repo location
+- Check that `npm install` was run in `~/.config/opencode/tools/` (not the repo)
+- Check that `~/.config/opencode/tools/.env` has valid tokens
+- Check that `opencode.json` points to `~/.config/opencode/tools/toolbox-proxy.js`
 
 ### Antigravity auth issues
-- Delete `~/.config/opencode/antigravity-accounts.json` and re-run `opencode auth login`
+- Delete `~/.config/opencode/antigravity-accounts.json` and re-authenticate
 
 ### OpenCode Desktop bash tool not working (Windows)
-This is a known issue with OpenCode Desktop on Windows. The bash tool requires a shell (`bash.exe`) that the Desktop app can't spawn. This does NOT affect the MCP tools or model access — only the built-in bash tool.
+Known issue. The bash tool requires `bash.exe` that the Desktop app can't spawn. This does NOT affect MCP tools or model access.
