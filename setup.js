@@ -173,8 +173,7 @@ async function main() {
   console.log('  Next steps:');
   console.log(`  1. Edit ${ENV_TARGET} with your API keys`);
   console.log('  2. Restart OpenCode Desktop to pick up the new config');
-  console.log('  3. Run /connect in OpenCode to authenticate Antigravity (if needed)');
-  console.log('  4. You can now delete this repo folder - everything is installed.\n');
+  console.log('  3. You can now delete this repo folder - everything is installed.\n');
 }
 
 main().catch(err => {

@@ -1,6 +1,6 @@
 # OpenCode Config (Cross-Platform)
 
-Shared OpenCode configuration for macOS and Windows. Includes Antigravity models, LM Studio, and MCP tools (Slack, Notion, n8n).
+Shared OpenCode configuration for macOS and Windows. Includes LM Studio and MCP tools (Slack, Notion, n8n).
 
 ## Setup
 
@@ -40,8 +40,7 @@ The setup script copies MCP tools and generates `opencode.json` into `~/.config/
 
 ## What's Included
 
-- **Antigravity plugin** (latest) -- Gemini 3 Pro/Flash, Claude Sonnet 4.5, Opus 4.5/4.6 via Google OAuth
-- **Gemini CLI models** -- Gemini 2.5 Flash/Pro, 3 Flash/Pro Preview
+- **LM Studio** -- local LLM support
 - **LM Studio** -- local LLM support (auto-detects localhost vs LAN)
 - **Context7 MCP** -- documentation lookup
 - **Unified Toolbox MCP** -- Slack (read-only), Notion (read-only), n8n (full)

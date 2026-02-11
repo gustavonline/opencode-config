@@ -4,7 +4,7 @@ This file is intended for the OpenCode agent. When a user clones this repo and o
 
 ## Overview
 
-This repo contains a shared OpenCode configuration (Antigravity models, LM Studio, MCP tools) that works on both macOS and Windows. The repo is **disposable** -- after setup, everything needed lives in `~/.config/opencode/` and the repo can be deleted.
+This repo contains a shared OpenCode configuration (LM Studio and MCP tools) that works on both macOS and Windows. The repo is **disposable** -- after setup, everything needed lives in `~/.config/opencode/` and the repo can be deleted.
 
 **Two ways to set up:**
 1. **Automated:** Run `node setup.js` in the repo root (handles everything)
@@ -110,16 +110,11 @@ Write the result to `~/.config/opencode/opencode.json`.
 
 **WARNING:** Check if `opencode.json` already exists. If it does, ask the user before overwriting.
 
-### Step 6: Authenticate Antigravity
-
-The user needs to authenticate with Google OAuth. In OpenCode Desktop, they can use `/connect` or the plugin may prompt automatically on first model use.
-
-### Step 7: Verify
+### Step 6: Verify
 
 Tell the user to restart OpenCode Desktop to pick up the new config.
 
 After restart, verify:
-- Antigravity models appear in the model list
 - LM Studio model appears if LM Studio is running
 - Context7 MCP is available
 - MCP toolbox tools are available (slack, notion, n8n)
@@ -145,9 +140,6 @@ The `.env` is never overwritten if it already exists, so secrets are preserved.
 - Check that `npm install` was run in `~/.config/opencode/tools/` (not the repo)
 - Check that `~/.config/opencode/tools/.env` has valid tokens
 - Check that `opencode.json` points to `~/.config/opencode/tools/toolbox-proxy.js`
-
-### Antigravity auth issues
-- Delete `~/.config/opencode/antigravity-accounts.json` and re-authenticate
 
 ### OpenCode Desktop bash tool not working (Windows)
 Known issue. The bash tool requires `bash.exe` that the Desktop app can't spawn. This does NOT affect MCP tools or model access.
